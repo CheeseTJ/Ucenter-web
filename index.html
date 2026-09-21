@@ -4,6 +4,14 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>用户中心 · 身份登记处</title>
+<script>
+  // 管理台没有做移动端适配，手机上打开只会看到一个用不了的界面。
+  // 手机浏览器一律送去 H5：注册 / 登录 / 我的账号都在那边。
+  // 用无扩展名的 h5：Cloudflare Pages 会把 /h5.html 308 跳到 /h5。
+  if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+    location.replace("h5" + location.hash);
+  }
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23C4432B'/%3E%3Ctext x='16' y='24' font-size='21' text-anchor='middle' fill='%23FDF8F2' font-family='serif'%3E%E7%B1%8D%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

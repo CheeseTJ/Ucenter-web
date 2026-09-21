@@ -1,23 +1,37 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-import { login as apiLogin, saveSession } from "@/shared/api";
-import { enterConsole, isAdmin, loadAll, loadMe, showDenied, state } from "../session";
+import { login as apiLogin, register as apiRegister, saveSession } from "@/shared/api";
+import { enterConsole, loadAll, loadMe, state } from "../session";
 import { toast } from "../ui";
 
 /**
- * 登录幕帘。web 端只做查验，不提供注册入口——注册在 h5 端，
- * 所以这里只有邮箱、口令和登录按钮。
+ * 登录 / 注册幕帘。除管理台之外的功能两头都要有，所以电脑端也保留注册入口，
+ * 与 H5 走同一套接口（注册仍需邀请码）。
  */
 defineProps<{ hide: boolean }>();
 
+type Mode = "login" | "register";
+
+const mode = ref<Mode>("login");
 const email = ref("");
 const pass = ref("");
+const pass2 = ref("");
+const invite = ref("");
 const busy = ref(false);
+
+function switchMode(next: Mode): void {
+  mode.value = next;
+  state.curtainAlert = "";
+  pass.value = "";
+  pass2.value = "";
+  invite.value = "";
+}
 
 async function submit(): Promise<void> {
   const mail = email.value.trim();
   const pwd = pass.value;
+
   if (!mail.includes("@")) {
     state.curtainAlert = "邮箱格式看起来不对";
     return;
@@ -26,24 +40,37 @@ async function submit(): Promise<void> {
     state.curtainAlert = "口令至少 8 位";
     return;
   }
-  if (busy.value) return;
-  busy.value = true;
-  try {
-    const r = await apiLogin(mail, pwd);
-    // 先落盘令牌，fetchMe 才带得上 Bearer
-    saveSession(r);
-    // 角色以服务端实时值为准，不能信令牌里的旧声明
-    await loadMe();
-    saveSession(r, state.role);
-    if (!isAdmin()) {
-      // 非管理员：立刻清掉登录态，整屏拒绝
-      showDenied();
+  if (mode.value === "register") {
+    if (pass2.value !== pwd) {
+      state.curtainAlert = "两次输入的口令不一致";
       return;
     }
+    if (!invite.value.trim()) {
+      state.curtainAlert = "注册需要邀请码";
+      return;
+    }
+  }
+  if (busy.value) return;
+  busy.value = true;
+
+  try {
+    const registering = mode.value === "register";
+    const result = registering
+      ? await apiRegister({ email: mail, password: pwd, inviteCode: invite.value.trim() })
+      : await apiLogin(mail, pwd);
+
+    // 先落盘令牌，fetchMe 才带得上 Bearer
+    saveSession(result);
+    // 角色以服务端实时值为准，不能信令牌里的旧声明
+    await loadMe();
+    saveSession(result, state.role);
+
     pass.value = "";
+    pass2.value = "";
+    invite.value = "";
     enterConsole();
     await loadAll();
-    toast("查验通过");
+    toast(registering ? "登记完成，已放行" : "查验通过");
   } catch (err) {
     state.curtainAlert = err instanceof Error ? err.message : String(err);
   } finally {
@@ -58,8 +85,8 @@ async function submit(): Promise<void> {
       <div class="slip-head">
         <div class="chop">籍</div>
         <div>
-          <h1>查验身份</h1>
-          <p>User Center · Admission</p>
+          <h1>{{ mode === "register" ? "申请登记" : "查验身份" }}</h1>
+          <p>{{ mode === "register" ? "User Center · Enroll" : "User Center · Admission" }}</p>
         </div>
       </div>
 
@@ -86,13 +113,28 @@ async function submit(): Promise<void> {
             required
           />
         </div>
+        <div v-if="mode === 'register'">
+          <label class="lab" for="fPass2">确认口令</label>
+          <input
+            id="fPass2"
+            v-model="pass2"
+            class="inp"
+            type="password"
+            placeholder="再输一遍"
+            autocomplete="new-password"
+          />
+        </div>
+        <div v-if="mode === 'register'">
+          <label class="lab" for="fInvite">邀请码</label>
+          <input id="fInvite" v-model="invite" class="inp" type="text" placeholder="注册需要邀请码" />
+        </div>
         <button
           class="btn ink"
           type="submit"
           :disabled="busy"
           style="justify-content: center; padding: 11px 14px"
         >
-          {{ busy ? "处理中…" : "进入登记处" }}
+          {{ busy ? "处理中…" : mode === "register" ? "提交申请" : "进入登记处" }}
         </button>
       </div>
 
@@ -101,7 +143,16 @@ async function submit(): Promise<void> {
       </div>
 
       <div class="slip-foot">
-        <span>没有账号？请在手机端申请登记</span>
+        <span v-if="mode === 'login'">
+          还没有账号？<button type="button" class="link" @click="switchMode('register')">
+            申请登记
+          </button>
+        </span>
+        <span v-else>
+          已有账号？<button type="button" class="link" @click="switchMode('login')">
+            返回查验
+          </button>
+        </span>
       </div>
     </form>
   </div>

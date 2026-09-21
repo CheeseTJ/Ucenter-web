@@ -4,7 +4,6 @@ import { computed, ref, watch } from "vue";
 import { shortId } from "@/shared/format";
 import AppToast from "./components/AppToast.vue";
 import { boot, go, initSession, isAdmin, state, type ViewKey } from "./session";
-import DeniedView from "./views/DeniedView.vue";
 import DevicesView from "./views/DevicesView.vue";
 import InvitesView from "./views/InvitesView.vue";
 import LoginView from "./views/LoginView.vue";
@@ -49,44 +48,47 @@ void boot();
       </div>
 
       <nav class="nav">
-        <div class="nav-label">登记册</div>
-        <button
-          class="nav-item"
-          :class="{ on: state.view === 'overview' }"
-          type="button"
-          @click="pick('overview')"
-        >
-          <svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M4 19V9m5 10V9m5 10V9m5 10V9" /></svg>
-          总览 <span class="nav-count">{{ state.stats.users }}</span>
-        </button>
-        <button
-          class="nav-item"
-          :class="{ on: state.view === 'users' }"
-          type="button"
-          @click="pick('users')"
-        >
-          <svg viewBox="0 0 24 24">
-            <circle cx="9" cy="8" r="3.2" />
-            <path d="M3 20c0-3.4 2.7-5.4 6-5.4s6 2 6 5.4" />
-            <path d="M16 11.2a3 3 0 1 0 0-6" />
-            <path d="M18 20c0-2.4-.8-4-2-5" />
-          </svg>
-          账号 <span class="nav-count">{{ state.stats.users }}</span>
-        </button>
-        <button
-          class="nav-item"
-          :class="{ on: state.view === 'invites' }"
-          type="button"
-          @click="pick('invites')"
-        >
-          <svg viewBox="0 0 24 24">
-            <path d="M3 7.5h18v9H3z" />
-            <path d="M3 10.5h18" />
-            <circle cx="17" cy="13.5" r="1.2" />
-          </svg>
-          邀请函 <span class="nav-count">{{ state.invites.length }}</span>
-        </button>
-        <div class="nav-label" style="margin-top: 16px">我本人</div>
+        <!-- 管理台这一组整个不渲染：非管理员在服务端本来也会被 requireAdmin 挡下 -->
+        <template v-if="isAdmin()">
+          <div class="nav-label">登记册</div>
+          <button
+            class="nav-item"
+            :class="{ on: state.view === 'overview' }"
+            type="button"
+            @click="pick('overview')"
+          >
+            <svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M4 19V9m5 10V9m5 10V9m5 10V9" /></svg>
+            总览 <span class="nav-count">{{ state.stats.users }}</span>
+          </button>
+          <button
+            class="nav-item"
+            :class="{ on: state.view === 'users' }"
+            type="button"
+            @click="pick('users')"
+          >
+            <svg viewBox="0 0 24 24">
+              <circle cx="9" cy="8" r="3.2" />
+              <path d="M3 20c0-3.4 2.7-5.4 6-5.4s6 2 6 5.4" />
+              <path d="M16 11.2a3 3 0 1 0 0-6" />
+              <path d="M18 20c0-2.4-.8-4-2-5" />
+            </svg>
+            账号 <span class="nav-count">{{ state.stats.users }}</span>
+          </button>
+          <button
+            class="nav-item"
+            :class="{ on: state.view === 'invites' }"
+            type="button"
+            @click="pick('invites')"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M3 7.5h18v9H3z" />
+              <path d="M3 10.5h18" />
+              <circle cx="17" cy="13.5" r="1.2" />
+            </svg>
+            邀请函 <span class="nav-count">{{ state.invites.length }}</span>
+          </button>
+        </template>
+        <div class="nav-label" :style="isAdmin() ? 'margin-top: 16px' : ''">我本人</div>
         <button
           class="nav-item"
           :class="{ on: state.view === 'profile' }"
@@ -132,6 +134,5 @@ void boot();
 
   <!-- 幕帘常驻，登录成功时靠 .hide 淡出，露出后面的控制台 -->
   <LoginView :hide="state.gate !== 'login'" />
-  <DeniedView v-if="state.gate === 'denied'" />
   <AppToast />
 </template>

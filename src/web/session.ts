@@ -1,8 +1,10 @@
 /**
  * 会话与数据状态（web 端组件之间共享）。
  *
- * 管理员闸门是这一端的核心：只有服务端实时角色为 admin 时才进入控制台，
- * 其余账号一律清掉令牌并整屏显示 DeniedView——绝不"先渲染再把侧栏藏起来"。
+ * 管理台（总览 / 账号 / 邀请函）只对 admin 开放，而且只在电脑上；
+ * 其余功能——注册、登录、我的档案、我的设备——任何账号都能用，
+ * 所以这里不做"非管理员一律拒之门外"，只是把管理那块整个不渲染。
+ * 真正的准入由服务端的 requireAdmin 兜底：前端藏导航只是体验，不是防线。
  */
 
 import { reactive } from "vue";
@@ -28,8 +30,11 @@ import {
 
 export type ViewKey = "overview" | "users" | "invites" | "profile" | "devices";
 
-/** 闸门：幕帘 → 控制台；非管理员停在 denied，既不渲染侧栏也不渲染任何管理视图 */
-export type Gate = "login" | "app" | "denied";
+/** 闸门：幕帘 ↔ 控制台。进控制台后再按角色决定看得到哪些导航 */
+export type Gate = "login" | "app";
+
+/** 管理台那一组，非管理员看不到也不该看到 */
+export const ADMIN_VIEWS: ViewKey[] = ["overview", "users", "invites"];
 
 export interface WebState {
   gate: Gate;
@@ -69,13 +74,15 @@ export function isAdmin(): boolean {
 }
 
 export function go(view: ViewKey): void {
+  // 非管理员即使被外来调用切到管理视图，也退回自己的档案页
+  if (!isAdmin() && ADMIN_VIEWS.includes(view)) return;
   state.view = view;
 }
 
-/** 通过闸门：收起幕帘，落到总览 */
+/** 通过闸门：收起幕帘。管理员落总览，其余账号落自己的档案 */
 export function enterConsole(): void {
   state.curtainAlert = "";
-  state.view = "overview";
+  state.view = isAdmin() ? "overview" : "profile";
   state.gate = "app";
 }
 
@@ -83,14 +90,6 @@ export function enterConsole(): void {
 export function showCurtain(message = ""): void {
   state.gate = "login";
   state.curtainAlert = message;
-}
-
-/** 非管理员：立刻吊销本地登录态，整屏拒绝，绝不进入控制台 */
-export function showDenied(): void {
-  tkClear();
-  resetData();
-  state.curtainAlert = "";
-  state.gate = "denied";
 }
 
 function resetData(): void {
@@ -158,7 +157,7 @@ export function initSession(): void {
   });
 }
 
-/** 启动引导：无令牌显示幕帘；有令牌先验证实时角色，非管理员直接拒绝 */
+/** 启动引导：无令牌显示幕帘；有令牌则恢复会话（角色决定看得到哪些导航） */
 export async function boot(): Promise<void> {
   if (!tkGet("access")) {
     showCurtain();
@@ -170,10 +169,6 @@ export async function boot(): Promise<void> {
     tkClear();
     resetData();
     showCurtain("登录已过期，请重新登录");
-    return;
-  }
-  if (!isAdmin()) {
-    showDenied();
     return;
   }
   enterConsole();
