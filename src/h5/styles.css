@@ -1,0 +1,447 @@
+/* ============================================================
+   h5 端（手机端）样式
+   类名与取值搬自设计稿 Ucenter/public/mobile-preview.html 的 <style>，
+   只保留产品页面用到的部分（预览页的 .wall / .stage / .phone 外壳不搬）。
+   设计令牌与纸张纹理在 shared/styles/base.css 里，本文件在其之后导入。
+   ============================================================ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  /* 手机上点按不要出现灰色高亮块 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- 页面骨架：appbar 吸顶，整页纵向滚动 ---------- */
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: calc(10px + env(safe-area-inset-top)) 20px 13px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.mchop {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  background: var(--seal);
+  color: #fdf8f2;
+  font: 700 17px/1 var(--serif);
+  border-radius: 3px;
+  transform: rotate(-3deg);
+  box-shadow: inset 0 0 0 1.5px rgba(253, 248, 242, 0.55), inset 0 0 0 2.5px var(--seal),
+    0 5px 12px -7px rgba(196, 67, 43, 0.75);
+}
+.mname {
+  font: 600 14px/1.15 var(--serif);
+}
+.msub {
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-top: 4px;
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 20px calc(24px + env(safe-area-inset-bottom));
+}
+
+/* ---------- 表单 ---------- */
+.hero {
+  padding-bottom: 24px;
+}
+.hero h2 {
+  margin: 0;
+  font: 600 27px/1.15 var(--serif);
+  letter-spacing: -0.02em;
+}
+.hero p {
+  margin: 9px 0 0;
+  font: 400 11.5px/1.6 var(--mono);
+  color: var(--ink-3);
+}
+
+.form {
+  margin-top: 2px;
+}
+.fgroup {
+  margin-bottom: 15px;
+}
+.flab {
+  display: block;
+  margin: 0 0 8px;
+  font: 500 9.5px/1 var(--mono);
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+/* 输入框字号用 16px：设计稿写的是 13.5px，但 iOS Safari 聚焦小于 16px 的
+   输入框会自动把整页放大，真机上很难用。标签等非输入元素仍按设计稿尺寸。 */
+.fin {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  outline: none;
+  font: 400 16px/1 var(--mono);
+  color: var(--ink);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.18s, background 0.18s;
+}
+.fin::placeholder {
+  color: var(--ink-4);
+}
+.fin:focus {
+  border-color: var(--seal);
+  background: var(--paper);
+}
+.fin.bad {
+  border-color: var(--seal);
+  background: var(--seal-wash);
+}
+.fhint {
+  margin-top: 7px;
+  font: 400 10.5px/1.5 var(--mono);
+  color: var(--ink-4);
+}
+.fhint.err {
+  color: var(--seal-2);
+}
+
+.cta {
+  width: 100%;
+  height: 50px;
+  margin-top: 9px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 500 13px/1 var(--mono);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.cta.ghost {
+  background: none;
+  border: 1px solid var(--rule-2);
+  color: var(--ink-2);
+}
+.cta[disabled] {
+  opacity: 0.6;
+}
+
+.alert {
+  margin: 0 0 15px;
+  padding: 11px 13px;
+  border-left: 3px solid var(--seal);
+  background: var(--seal-wash);
+  font: 400 11.5px/1.6 var(--mono);
+  color: var(--seal-2);
+}
+.alert.warn {
+  border-color: var(--ochre);
+  background: var(--ochre-wash);
+  color: #7a5715;
+}
+.alert.ok {
+  border-color: var(--moss);
+  background: var(--moss-wash);
+  color: #2f5540;
+}
+
+.swap {
+  margin-top: 20px;
+  text-align: center;
+  font: 400 11.5px/1.6 var(--mono);
+  color: var(--ink-3);
+}
+.swap a {
+  color: var(--seal-2);
+  border-bottom: 1px solid rgba(196, 67, 43, 0.35);
+  padding-bottom: 1px;
+}
+
+.footnote {
+  margin-top: auto;
+  padding-top: 22px;
+  text-align: center;
+  font: 400 10.5px/1.6 var(--mono);
+  color: var(--ink-4);
+  letter-spacing: 0.03em;
+}
+
+/* ---------- 登记完成 ---------- */
+.done {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.done-chop {
+  width: 78px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  background: var(--moss);
+  color: #f6f2e8;
+  font: 700 34px/1 var(--serif);
+  border-radius: 5px;
+  transform: rotate(-3deg);
+  box-shadow: inset 0 0 0 2px rgba(246, 242, 232, 0.5), inset 0 0 0 3.5px var(--moss),
+    0 10px 24px -12px rgba(61, 107, 78, 0.85);
+}
+.done h2 {
+  margin: 24px 0 0;
+  font: 600 26px/1.2 var(--serif);
+  letter-spacing: -0.015em;
+}
+.done .lead {
+  margin: 10px 0 0;
+  font: 400 12px/1.6 var(--mono);
+  color: var(--ink-3);
+}
+.receipt {
+  width: 100%;
+  margin: 28px 0 0;
+  padding: 16px 16px 14px;
+  text-align: left;
+  border: 1px solid var(--rule-2);
+  background: var(--paper-2);
+  box-shadow: inset 0 0 0 4px var(--paper-2), inset 0 0 0 5px var(--rule);
+}
+.receipt dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 66px 1fr;
+  gap: 9px 12px;
+}
+.receipt dt {
+  font: 500 9.5px/1.9 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.receipt dd {
+  margin: 0;
+  font: 500 12px/1.55 var(--mono);
+  word-break: break-all;
+}
+.receipt .role {
+  color: var(--ink-2);
+}
+
+/* ---------- 我的账号 ---------- */
+.pcard {
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  padding: 18px 18px 16px;
+  margin-bottom: 14px;
+}
+.pcard h3 {
+  margin: 0 0 14px;
+  font: 600 16px/1.2 var(--serif);
+}
+.prow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.prow:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.prow .k {
+  font: 400 11px/1.5 var(--mono);
+  color: var(--ink-4);
+}
+.prow .v {
+  font: 500 12px/1.5 var(--mono);
+  word-break: break-all;
+  text-align: right;
+}
+.dev-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.dev-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--moss);
+  flex: none;
+}
+.dot.now {
+  background: var(--seal);
+  box-shadow: 0 0 0 4px var(--seal-wash);
+}
+.dot.off {
+  background: var(--ink-4);
+}
+.dev-body {
+  flex: 1;
+  min-width: 0;
+}
+.dev-name {
+  font: 500 12px/1.4 var(--mono);
+}
+.dev-meta {
+  font: 400 10px/1.6 var(--mono);
+  color: var(--ink-4);
+  margin-top: 3px;
+}
+.btn-xs {
+  flex: none;
+  padding: 8px 12px;
+  border: 1px solid var(--rule-2);
+  border-radius: 4px;
+  background: var(--paper);
+  font: 500 10.5px/1 var(--mono);
+  color: var(--ink-2);
+}
+.btn-xs.danger {
+  border-color: var(--seal);
+  color: var(--seal-2);
+  background: var(--seal-wash);
+}
+.btn-xs[disabled] {
+  opacity: 0.45;
+}
+
+/* ---------- 全局提示 ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  translate: -50% 0;
+  z-index: 90;
+  max-width: calc(100vw - 48px);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 11px 18px;
+  border-radius: var(--r, 4px);
+  font: 500 11.5px/1.4 var(--mono);
+  opacity: 0;
+  transition: opacity 0.25s ease, translate 0.25s ease;
+  pointer-events: none;
+}
+.toast.on {
+  opacity: 1;
+  translate: -50% -6px;
+}
+
+/* ---------- 二次确认弹层 ---------- */
+/* 设计稿没画这一屏：按同一套语言补出来 —— 纸底、细边框、印章标题、右下两个按钮 */
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  place-items: center;
+  padding: 0 24px;
+  background: rgba(28, 23, 19, 0.32);
+  backdrop-filter: blur(2px);
+}
+.mask.on {
+  display: grid;
+  animation: rise 0.22s ease both;
+}
+.ticket {
+  width: 100%;
+  max-width: 330px;
+  padding: 22px 20px 18px;
+  background: var(--paper);
+  border: 1px solid var(--rule-2);
+  box-shadow: 0 26px 60px -30px rgba(28, 23, 19, 0.55);
+}
+.ticket h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 8px;
+  font: 600 17px/1.25 var(--serif);
+}
+.ticket h3::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  flex: none;
+  background: var(--seal);
+  border-radius: 2px;
+  transform: rotate(-3deg);
+}
+.ticket p {
+  margin: 0;
+  font: 400 11.5px/1.7 var(--mono);
+  color: var(--ink-3);
+}
+.ticket .row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 20px;
+}
+.ticket .btn {
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--rule-2);
+  border-radius: 4px;
+  font: 500 12px/1 var(--mono);
+  color: var(--ink-2);
+}
+.ticket .btn.seal {
+  background: var(--seal);
+  border-color: var(--seal);
+  color: #fdf8f2;
+}
+.ticket .btn[disabled] {
+  opacity: 0.6;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
